@@ -1,0 +1,1 @@
+char* get_uuid_machine_id();

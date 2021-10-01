@@ -1,0 +1,21 @@
+body {
+    font-family: Arial, monospace;
+    max-width: 768px;
+    margin: auto;
+}
+
+h1 {
+    font-weight: bolder;
+}
+
+.responsive {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+}
+
+table {
+    width: 100%;
+    border: 1px solid black;
+    border-collapse: collapse;
+}

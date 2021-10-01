@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <title>== ahegao Web UI ==</title>
+        <link rel="stylesheet" type="text/css" href="/static/css/site.css">
+    </head>
+    <body>
+        <center>
+            <img src="/static/img/logo.png" class="responsive">
+            <h1>ahegao PRE-ALPHA Build</h1>
+            <table>
+                <tr>
+                    <th>&#10032;</th>
+                    <th>UUID</th>
+                    <th>IP</th>
+                    <th>LAST SEEN</th>
+                    <th></th>
+                </tr>
+            {{ range . }}
+            <tr>
+                <td><b>{{ .Id }}</b></td>
+                <td>{{ .Uuid }}</td>
+                <td>{{ .Ipaddr }}</td>
+                <td>{{ .Timestamp }}</td>
+                <td><button>Shell</button></td>
+            </tr>
+            {{ end }}
+            </table>
+        </center>
+    </body>
+</html>
