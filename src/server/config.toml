@@ -1,0 +1,9 @@
+[listener]
+    HOST="0.0.0.0"
+    PORT="23855"
+
+[httpui]
+    PORT="8080"
+
+[database]
+    Name="" 

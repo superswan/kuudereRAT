@@ -2,6 +2,7 @@ package main
 
 import (
     "fmt"
+    "log"
     "net"
     "os"
     "time"
@@ -10,16 +11,26 @@ import (
     "b00fkit/asciiArt"
     "b00fkit/httpui"
     "b00fkit/sqldb"
+
+    "github.com/spf13/viper"
 )
 
-// Configuration for listener 
-const (
-    CONN_HOST = "0.0.0.0"
-    CONN_PORT = "23855"
-    CONN_TYPE = "tcp"
-)
+
 
 func main() {
+    viper.SetConfigName("config")
+    viper.AddConfigPath(".")
+    err := viper.ReadInConfig()
+    if err != nil {
+        log.Println("Error in config file: ", err)
+    }
+
+    // Configuration for listener 
+    
+    CONN_HOST := viper.GetString("listener.host")
+    CONN_PORT := viper.GetString("listener.port")
+    CONN_TYPE := "tcp"
+    
 
     asciiArt.PrintArt1()
 
