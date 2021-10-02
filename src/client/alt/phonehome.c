@@ -15,9 +15,9 @@ int main(int argc, char *argv[])
 
     struct sockaddr_in server;
 
-    server.sin_addr.s_addr = inet_addr("10.1.0.199");
+    server.sin_addr.s_addr = inet_addr("");
     server.sin_family = AF_INET;
-    server.sin_port = htons(23855);
+    server.sin_port = htons();
     
     FILE *fp=fopen("/var/lib/dbus/machine-id", "r");
     if (fp == NULL)
