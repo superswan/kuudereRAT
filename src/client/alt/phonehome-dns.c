@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     char uuid[36];
 
     struct sockaddr_in server;
-    char* srvaddr = resolveIP("checkout.awsmppl.com");
+    char* srvaddr = resolveIP("hostname");
 
     server.sin_addr.s_addr = inet_addr(srvaddr);
     server.sin_family = AF_INET;

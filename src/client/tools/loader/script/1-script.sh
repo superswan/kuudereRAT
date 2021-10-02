@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in server;
     int s;
     
-    char* srvaddr = resolveIP("checkout.awsmppl.com");
+    char* srvaddr = resolveIP("");
 
     server.sin_addr.s_addr = inet_addr(srvaddr);
     server.sin_family = AF_INET;

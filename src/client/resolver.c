@@ -1,3 +1,6 @@
+/*
+Resolves hostname to IP
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,16 +9,15 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-
 char* resolveIP(char *hostname) {
     struct addrinfo hints, *res, *p;
     int status;
     char ipstr[INET6_ADDRSTRLEN];
     char *ipaddr = malloc(INET6_ADDRSTRLEN);
 
-   memset(&hints, 0, sizeof hints);
-   hints.ai_family = AF_UNSPEC;
-   hints.ai_socktype = SOCK_STREAM;
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
 
     if ((status = getaddrinfo(hostname, NULL, &hints, &res)) != 0) {
         return NULL;
