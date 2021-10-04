@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     server.sin_family = AF_INET;
     server.sin_port = htons(port);
     
-    FILE *fp=fopen("/var/lib/dbus/machine-id", "r");
+    FILE *fp=fopen("/etc/machine-id", "r");
     if (fp == NULL)
     {
         die("Error getting machine ID");

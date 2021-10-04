@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"html/template"
 
-	"b00fkit/sqldb"
+	"desukit/sqldb"
 )
 
 var templates *template.Template
@@ -27,8 +27,9 @@ func Start() {
 	http.Handle("/", r)
 	fileServer := http.FileServer(http.Dir("./httpui/static"))
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileServer))
+
 	// Generated payloads will be placed in this directory and can be used to
-	// push modules and payloads to remote hosts
+	// push modules and client payloads to remote hosts
 	pullServer := http.FileServer(http.Dir("./httpui/payload"))
 	r.PathPrefix("/checkout/").Handler(http.StripPrefix("/checkout/", pullServer))
 

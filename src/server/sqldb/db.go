@@ -1,3 +1,5 @@
+/* Simply sets up a connection to the database and returns a global variable that can be used in any package */
+
 package sqldb
 
 import (

