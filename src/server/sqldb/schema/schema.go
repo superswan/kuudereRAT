@@ -22,7 +22,7 @@ func InitializeDB() {
     // task_queued integer
     // queue int
     // ts_last text -- timestamp of last execution
-    statement, _ = sqldb.DB.Prepare("CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, uuid TEXT NOT NULL UNIQUE, task_queued INTEGER, queue INTEGER, ts_last TEXT)")
+    statement, _ = sqldb.DB.Prepare("CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, uuid TEXT NOT NULL UNIQUE, task_id INTEGER, task_queued INTEGER, queue INTEGER, ts_last TEXT)")
     statement.Exec()
     // ------------ END DB ----------------------
 }

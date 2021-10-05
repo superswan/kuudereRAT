@@ -10,7 +10,7 @@ type Client struct {
 type Task struct {
 	Uuid string
 	Task_ID int
-	Task_queued bool
+	Task_queued int
 	Queue int
 	Ts_last string
 }

@@ -23,8 +23,23 @@ func CheckClient(client model.Client) (bool) {
 	return exists 
 }
 
+func GetClient(uuid string) (model.Client) {
+	C := new(model.Client)
+	err := sqldb.DB.QueryRow("SELECT uuid, ipaddr, ts_first, ts_last FROM clients where uuid =?",
+	uuid).Scan(&C.Uuid, &C.Ipaddr, &C.Ts_first, &C.Ts_last)
+	
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err == sql.ErrNoRows {
+		log.Fatal(err)
+	}
+
+	return *C
+}
+
 // Insert
-// Register client into database if it doesn't exist 
+// Register client into database
 func RegisterClient(client model.Client) {
 	statement, err := sqldb.DB.Prepare("INSERT INTO clients (uuid, ipaddr, ts_first, ts_last) VALUES (?, ?, ?, ?)")
 	if err != nil {

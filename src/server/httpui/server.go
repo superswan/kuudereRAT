@@ -1,22 +1,19 @@
 package httpui
 
 import (
+	"log"
 	"fmt"
 	"net/http"
 	"github.com/gorilla/mux"
 	"html/template"
 
-	"desukit/sqldb"
+	"desukit/sqldb/view"
+	"desukit/sqldb/model"
+	"desukit/sqldb/controller/client"
+	"desukit/sqldb/controller/tasks"
 )
 
 var templates *template.Template
-
-type Client struct {
-	Id int
-	Uuid string
-	Ipaddr string
-	Timestamp string
-}
 
 func Start() {
 	port := "8080"
@@ -25,6 +22,11 @@ func Start() {
 	r := mux.NewRouter()	
 	r.HandleFunc("/", httpHandler)
 	http.Handle("/", r)
+
+	// Task functions
+	r.HandleFunc("/create_task/{uuid}", taskHandler)
+
+	// Static files
 	fileServer := http.FileServer(http.Dir("./httpui/static"))
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileServer))
 
@@ -38,18 +40,39 @@ func Start() {
 	http.ListenAndServe(":"+port, nil)
 	<-done
 }
+// Helper functions
+func createTask(uuid string, task_name string) {
+	var task_id int
+	switch task_name {
+	case "shell":
+		task_id = 1
+	}
+	// fill Task struct with garbage, won't actually be submitted right now
+	task_queued := 1
+	queue := 1
+	ts_last := "timestamp"
+
+	C := client.GetClient(uuid)
+	T := model.Task{uuid, task_id, task_queued, queue, ts_last}
+
+	tasks.CreateTask(C, T)
+}
+
+// Handlers
 
 func httpHandler(w http.ResponseWriter, r *http.Request) {
-	rows, _ := sqldb.DB.Query("SELECT * from clients")
-	
-	Clients := []Client{}
-
-	defer rows.Close()
-	for rows.Next() {
-		C := new(Client)
-		rows.Scan(&C.Id, &C.Uuid, &C.Ipaddr, &C.Timestamp)
-		Clients = append(Clients, *C)
+	Clients := view.RetrieveClients()
+	err := templates.ExecuteTemplate(w, "index.html", Clients)
+	if err != nil {
+		log.Fatal("Error in template: ", err)
 	}
+}
 
-	templates.ExecuteTemplate(w, "index.html", Clients)
+func taskHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	uuid := vars["uuid"]
+	r.ParseForm()
+	task_name := r.Form["task"][0]
+	createTask(uuid, task_name)
+	httpHandler(w, r)
 }

@@ -1,12 +1,12 @@
 <html>
     <head>
-        <title>== ahegao Web UI ==</title>
+        <title>== kuudere Web UI ==</title>
         <link rel="stylesheet" type="text/css" href="/static/css/site.css">
     </head>
     <body>
         <center>
             <img src="/static/img/logo.png" class="responsive">
-            <h1>ahegao PRE-ALPHA Build</h1>
+            <h1>kuudereRAT PRE-ALPHA Build</h1>
             <table>
                 <tr>
                     <th>&#10032;</th>
@@ -15,13 +15,20 @@
                     <th>LAST SEEN</th>
                     <th></th>
                 </tr>
-            {{ range . }}
+            {{ range $index, $element := . }}
             <tr>
-                <td><b>{{ .Id }}</b></td>
+                <td>{{ $index }}</td>
                 <td>{{ .Uuid }}</td>
                 <td>{{ .Ipaddr }}</td>
-                <td>{{ .Timestamp }}</td>
-                <td><button>Shell</button></td>
+                <td>{{ .Ts_last }}</td>
+                <td>
+                    <form method ="post" action="/create_task/{{.Uuid}}">
+                    <select name="task" size="1" id="select-task">
+                        <option value="shell">Shell</option>
+                    </select>
+                    <button type="submit">Load</button>
+                    </form>
+                </td>
             </tr>
             {{ end }}
             </table>

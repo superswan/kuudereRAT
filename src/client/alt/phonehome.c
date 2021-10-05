@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     server.sin_family = AF_INET;
     server.sin_port = htons(port);
     
-    FILE *fp=fopen("/var/lib/dbus/machine-id", "r");
+    FILE *fp=fopen("/etc/machine-id", "r");
     if (fp == NULL)
     {
         die("Error getting machine ID");
@@ -39,12 +39,17 @@ int main(int argc, char *argv[])
     uuid[2] = 0xa5;
 
     retry_count = 0;
-    while(1){
-        if ((s=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+    s=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    while(retry_count < 1) {
+        if (s < 0)
         {
-           printf("Error creating socket"); 
-           retry_count += 1;
-           sleep(30 * retry_count);
+            printf("Error creating socket"); 
+            retry_count += 1;
+            sleep(30 * retry_count);
+            continue;
+        } else {
+            retry_count = 0;
         }
 
         if (connect(s, (struct sockaddr *)&server, sizeof(server)) < 0)
@@ -53,8 +58,12 @@ int main(int argc, char *argv[])
             retry_count += 1;
             sleep(30 * retry_count);
             continue;
+        } else {
+            retry_count = 0;
         }
-        
+
+        while(1){
+
         if(send(s, uuid, strlen(uuid), 0) < 0)
         {
             printf("error while sending transmission\n");
@@ -63,19 +72,18 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        if(recv(s, server_reply, sizeof(server_reply), 0) < 0)
+        if(recv(s, server_reply, sizeof(server_reply), 0) > 0)
         {
-            ;
-        } else {
             printf("%s", server_reply);
         }
 
         retry_count = 0;
-        shutdown(s, 2);
-        sleep(33);
-    }
+        sleep(12);
+        }
+
+    }     
     
-    return 0;
+
 }
 
 void die(char* message) {
