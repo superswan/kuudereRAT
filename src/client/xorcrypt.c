@@ -13,7 +13,7 @@ char* sxorcrypt(char* message, char* key){
     int i, j, c, message_length, key_length, max_size;
     char xor_c;
 
-    message_length = (strlen(key)) - 1;
+    message_length = (strlen(message_legnth)) - 1;
     key_length = (strlen(key)) - 1;
 
     printf("%d", message_length); 

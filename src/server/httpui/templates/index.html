@@ -1,19 +1,47 @@
+<!DOCTYPE html>
 <html>
     <head>
-        <title>== kuudere Web UI ==</title>
+        <title>【 kuudere Web UI 】</title>
         <link rel="stylesheet" type="text/css" href="/static/css/site.css">
+        <meta http-equiv="refresh" content="30"/>
+        <script type="text/javascript">
+        var imageURLs = [
+            "/static/img/logo/fight.gif",
+            "/static/img/logo/globe.gif",
+            "/static/img/logo/globe2.gif",
+            "/static/img/logo/mew.gif",
+            "/static/img/logo/anime-eyes.gif",
+            "/static/img/logo/heartbeat.gif",
+            "/static/img/logo/samurai.gif",
+        ];
+        function getImageTag() {
+            var img = '<img src=\"';
+            var randomIndex = Math.floor(Math.random() * imageURLs.length);
+            img += imageURLs[randomIndex];
+            img += '\" class=\"responsive\"/>';
+            console.log(img)
+            return img;
+        }
+        </script>
     </head>
     <body>
         <center>
-            <img src="/static/img/logo.png" class="responsive">
+            <div class="logo">
+            <!-- should pass image urls from server instead of this copy-pasted code -->
+            <script type="text/javascript">
+                document.write(getImageTag());
+            </script>
+            </div>
+            <div class="main-view">
             <h1>kuudereRAT PRE-ALPHA Build</h1>
+            <p class="lead">Page reloads every 30 seconds.</p>
             <table>
                 <tr>
                     <th>&#10032;</th>
                     <th>UUID</th>
                     <th>IP</th>
                     <th>LAST SEEN</th>
-                    <th></th>
+                    <th>MODULE</th>
                 </tr>
             {{ range $index, $element := . }}
             <tr>
@@ -32,6 +60,7 @@
             </tr>
             {{ end }}
             </table>
+            </div>
         </center>
     </body>
 </html>

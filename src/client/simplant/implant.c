@@ -13,6 +13,7 @@
 
 void die(char* message);
 void reply(int s);
+int rand_int(int max);
 
 int main(int argc, char *argv[])
 {
@@ -47,12 +48,14 @@ int main(int argc, char *argv[])
 
     retry_count = 0;
     while(1){
+        int jitter = rand_int(13);
+        sleep(2 * jitter);
 
         if ((s=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
         {
             printf("Error creating socket\n"); 
             retry_count += 1;
-            sleep(30 * retry_count);
+            sleep( (5 * retry_count) * jitter );
             continue;
         } else
             printf("Socket created\n");
@@ -61,7 +64,7 @@ int main(int argc, char *argv[])
         {
             printf("connection error\n");
             retry_count += 1;
-            sleep(30 * retry_count);
+            sleep( (5 * retry_count) * jitter );
             continue;
         }
             printf("connected to server\n");
@@ -70,13 +73,13 @@ int main(int argc, char *argv[])
         {
             printf("error while sending transmission\n");
             retry_count += 1;
-            sleep(30 * retry_count);
+            sleep((5 * retry_count) * jitter);
             continue;
         }
         reply(s);
         retry_count = 0;
         shutdown(s, 2);
-        sleep(10);
+        sleep(6 * jitter);
     }
     
     return 0;
@@ -142,5 +145,16 @@ void reply(int s) {
         } else
             break;
     }
+}
+
+int rand_int(int max) {
+    int divisor = RAND_MAX/(max+1);
+    int randint;
+    
+    do {
+        randint = rand()/divisor;
+    } while (randint > max);
+
+    return randint;
 }
 
