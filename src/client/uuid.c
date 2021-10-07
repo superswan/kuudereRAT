@@ -17,8 +17,8 @@ char* get_uuid_machine_id(){
     FILE *fp=fopen("/var/lib/dbus/machine-id", "r");
         if (fp == NULL)
         {
-            fclose(fp)
-            FILE *fp=fopen("/etc/machine-id", "r")
+            fclose(fp);
+            FILE *fp=fopen("/etc/machine-id", "r");
 
             if (fp == NULL) 
             {

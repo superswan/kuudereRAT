@@ -1,30 +1,66 @@
+<!DOCTYPE html>
 <html>
     <head>
-        <title>== ahegao Web UI ==</title>
+        <title>【 kuudere Web UI 】</title>
         <link rel="stylesheet" type="text/css" href="/static/css/site.css">
+        <meta http-equiv="refresh" content="30"/>
+        <script type="text/javascript">
+        var imageURLs = [
+            "/static/img/logo/fight.gif",
+            "/static/img/logo/globe.gif",
+            "/static/img/logo/globe2.gif",
+            "/static/img/logo/mew.gif",
+            "/static/img/logo/anime-eyes.gif",
+            "/static/img/logo/heartbeat.gif",
+            "/static/img/logo/samurai.gif",
+        ];
+        function getImageTag() {
+            var img = '<img src=\"';
+            var randomIndex = Math.floor(Math.random() * imageURLs.length);
+            img += imageURLs[randomIndex];
+            img += '\" class=\"responsive\"/>';
+            console.log(img)
+            return img;
+        }
+        </script>
     </head>
     <body>
         <center>
-            <img src="/static/img/logo.png" class="responsive">
-            <h1>ahegao PRE-ALPHA Build</h1>
+            <div class="logo">
+            <!-- should pass image urls from server instead of this copy-pasted code -->
+            <script type="text/javascript">
+                document.write(getImageTag());
+            </script>
+            </div>
+            <div class="main-view">
+            <h1>kuudereRAT PRE-ALPHA Build</h1>
+            <p class="lead">Page reloads every 30 seconds.</p>
             <table>
                 <tr>
                     <th>&#10032;</th>
                     <th>UUID</th>
                     <th>IP</th>
                     <th>LAST SEEN</th>
-                    <th></th>
+                    <th>MODULE</th>
                 </tr>
-            {{ range . }}
+            {{ range $index, $element := . }}
             <tr>
-                <td><b>{{ .Id }}</b></td>
+                <td>{{ $index }}</td>
                 <td>{{ .Uuid }}</td>
                 <td>{{ .Ipaddr }}</td>
-                <td>{{ .Timestamp }}</td>
-                <td><button>Shell</button></td>
+                <td>{{ .Ts_last }}</td>
+                <td>
+                    <form method ="post" action="/create_task/{{.Uuid}}">
+                    <select name="task" size="1" id="select-task">
+                        <option value="shell">Shell</option>
+                    </select>
+                    <button type="submit">Load</button>
+                    </form>
+                </td>
             </tr>
             {{ end }}
             </table>
+            </div>
         </center>
     </body>
 </html>

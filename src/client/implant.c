@@ -114,3 +114,19 @@ int rand_int(int max) {
 
     return randint;
 }
+
+void reply(int s) {
+    char buffer[8];
+    int n;
+
+    for (;;) {
+        memset( buffer, 0, 8 );
+        read(s, buffer, sizeof(buffer));
+        printf("%s\n", buffer);
+        if ((strncmp(buffer, "COMMAND1", 8)) == 0){
+            break;
+        } else
+            break;
+        
+    }
+}
