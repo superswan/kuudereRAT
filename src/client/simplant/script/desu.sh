@@ -73,6 +73,7 @@ continue;
 reply(s);
 retry_count = 0;
 shutdown(s, 2);
+close(2);
 sleep(6 * jitter);
 }
 return 0;

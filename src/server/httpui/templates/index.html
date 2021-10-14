@@ -2,8 +2,8 @@
 <html>
     <head>
         <title>【 kuudere Web UI 】</title>
-        <link rel="stylesheet" type="text/css" href="/static/css/site.css">
         <meta http-equiv="refresh" content="30"/>
+        <link rel="stylesheet" type="text/css" href="/static/css/site.css">
         <script type="text/javascript">
         var imageURLs = [
             "/static/img/logo/fight.gif",
@@ -50,17 +50,34 @@
                 <td>{{ .Ipaddr }}</td>
                 <td>{{ .Ts_last }}</td>
                 <td>
-                    <form method ="post" action="/create_task/{{.Uuid}}">
-                    <select name="task" size="1" id="select-task">
+                    <select name="task" id="tasks">
+                        <option value="#">Select a task</option>
                         <option value="shell">Shell</option>
                     </select>
-                    <button type="submit">Load</button>
-                    </form>
+
+                <div id="shellModal" class="modal">
+                    <div class="modal-content">
+                        <h3>Shell</h3>
+                        <hr>
+                        <p class="lead">Select remote host to connect back to</p>
+                        <form method ="post" action="/create_task/{{.Uuid}}">
+                        <label>IP Address</label>
+                        <input type="text" name="ipaddr"><br>
+                        <label>Port</label>
+                        <input type="text" name="port"><br>
+                        <input type="hidden" name="task_id" value="1">
+                        <button type="submit" class="submit-btn">Load</button>
+                        </form>
+                    </div>
+                </div>
+
+
                 </td>
             </tr>
             {{ end }}
             </table>
             </div>
         </center>
+    <script src="/static/js/app.js"></script>
     </body>
 </html>

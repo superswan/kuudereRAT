@@ -14,3 +14,10 @@ type Task struct {
 	Queue int
 	Ts_last string
 }
+
+type Host struct {
+	Uuid string
+	Os_name string
+	Location string
+	User string
+}
