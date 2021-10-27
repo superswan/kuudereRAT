@@ -3,6 +3,7 @@ package model
 type Client struct {
 	Uuid string
 	Ipaddr string
+	Platform string
 	Ts_first string
 	Ts_last string
 }

