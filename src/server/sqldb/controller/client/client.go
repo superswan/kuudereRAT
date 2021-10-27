@@ -41,12 +41,12 @@ func GetClient(uuid string) (model.Client) {
 // Insert
 // Register client into database
 func RegisterClient(client model.Client) {
-	statement, err := sqldb.DB.Prepare("INSERT INTO clients (uuid, ipaddr, ts_first, ts_last) VALUES (?, ?, ?, ?)")
+	statement, err := sqldb.DB.Prepare("INSERT INTO clients (uuid, ipaddr, platform, ts_first, ts_last) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
 		log.Fatal(err)
 	}
 	
-	_, err = statement.Exec(client.Uuid, client.Ipaddr, client.Ts_first, client.Ts_last)
+	_, err = statement.Exec(client.Uuid, client.Ipaddr, client.Platform, client.Ts_first, client.Ts_last)
 	if err != nil {
 		log.Fatal(err)
 	}
